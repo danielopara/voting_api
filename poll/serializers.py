@@ -11,5 +11,5 @@ class PollSerializer(serializers.ModelSerializer):
             title=validated_data['title'],
             description=validated_data['description'],
             start_date=validated_data['start_date'],
-            end_data=validated_data['end_date'],
+            end_date=validated_data['end_date'],
         )

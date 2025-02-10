@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     
     'api',
-    'app_user'
+    'app_user',
+    'poll'
 ]
 
 REST_FRAMEWORK = {

@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     
     'api',
     'app_user',
-    'poll'
+    'poll',
+    'candidate'
 ]
 
 REST_FRAMEWORK = {

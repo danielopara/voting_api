@@ -2,6 +2,7 @@ from .models import AppUser, User
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 import random
+from voting_api.utils import create_unique_id
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,12 +33,6 @@ class AppUserSerializer(serializers.ModelSerializer):
         model = AppUser
         fields = ('usr_id','full_name', 'user' )
         read_only_fields = ('usr_id', 'full_name')
-        
-    def create_user_id(self):
-        while True:
-            unique_id = f"USR-{random.randint(1000, 9999)}"
-            if not AppUser.objects.filter(usr_id = unique_id).exists():
-               return unique_id
             
         
     def create(self, validated_data):
@@ -47,7 +42,7 @@ class AppUserSerializer(serializers.ModelSerializer):
         user_serializer.is_valid(raise_exception=True)
         user = user_serializer.save()
         
-        id = self.create_user_id()
+        id = create_unique_id("USR", AppUser, "usr_id")
         return AppUser.objects.create(
             usr_id = id,
             user = user,

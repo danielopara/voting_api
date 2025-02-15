@@ -18,6 +18,17 @@ class PollView():
     
     @api_view(['GET'])
     def get_all_polls(request):
+        title = request.GET.get("title")
         polls = Poll.objects.all()
+        
+        allowed_queries = {"title"}
+
+        if any(query not in allowed_queries for query in request.GET.keys()):
+            return Response({"message": "invalid query"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if title:
+            polls = polls.filter(title__icontains=title)
+        
+            
         serializer = PollSerializer(polls, many=True)
         return Response({'status': True, 'data': serializer.data}, status=status.HTTP_200_OK)

@@ -37,3 +37,30 @@ def create_candidate(request):
         }
         return Response({"success": True, "data": candidate}, status=status.HTTP_201_CREATED)
     return Response({"success": False, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def get_candidate(request):
+    poll = request.GET.get('poll')
+    candidate = request.GET.get('candidate')
+    
+    allowed_queries = {'poll', 'candidate'}
+    query_keys = set(request.GET.keys())
+    
+    if query_keys - allowed_queries:
+        return Response({'message': 'invalid query'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    candidates = Candidate.objects.select_related('poll', 'candidate').all()
+    
+    if poll:
+        candidates = candidates.filter(poll__title__icontains = poll)
+        
+    if candidate:
+        candidates = candidates.filter(candidate__full_name__icontains = candidate)
+    candidates_list = [
+        {
+            "candidates_id": candidate.candidates_id,
+            "poll": candidate.poll.title,
+            "candidate": candidate.candidate.full_name
+        } for candidate in candidates
+    ]
+    return Response({'success': True, 'data':candidates_list}, status=status.HTTP_200_OK)

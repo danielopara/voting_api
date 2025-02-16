@@ -1,8 +1,6 @@
-from django.shortcuts import render
 from .models import Votes
 from app_user.models import AppUser
 from candidate.models import Candidate
-from poll.models import Poll
 from rest_framework import status
 from rest_framework.decorators import api_view
 from .serializers import VoteSerializer
@@ -10,6 +8,37 @@ from rest_framework.response import Response
 
 # Create your views here.
 class VoterView():
+    @api_view(['GET'])
+    def get_all(request):
+       poll = request.GET.get('poll')
+       candidate = request.GET.get('candidate')
+       
+       allowed_queries = {'poll', 'candidate'}
+       query_keys = set(request.GET.keys())  
+       
+       if query_keys - allowed_queries:
+           return Response({'success': False, 'data': 'invalid query'}, status=status.HTTP_400_BAD_REQUEST)
+       
+       votes = Votes.objects.select_related('candidate').all()
+       
+       if poll:
+           votes = votes.filter(poll__icontains = poll)
+    
+       if candidate:
+           votes = votes.filter(candidate__candidate__full_name__icontains = candidate)
+       
+       votes_list = [
+           {
+               'id': vote.votes_id,
+               'poll': vote.poll,
+               'candidate': vote.candidate.candidate.full_name,
+               'voter': vote.voter.full_name,
+           } for vote in votes
+       ]
+       
+       serializer = VoteSerializer(votes, many=True)
+       return Response({'success': True, 'data': votes_list}, status=status.HTTP_200_OK)
+    
     @api_view(['POST'])
     def create_vote(request):
         candidate_id = request.data.get('candidate')

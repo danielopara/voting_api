@@ -10,4 +10,4 @@ class Votes(models.Model):
     voter=models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name="voters")
     
     def __str__(self):
-        return f"{self.voter.full_name}"
+        return f"{self.voter.full_name} - {self.candidate.candidate.full_name}"
